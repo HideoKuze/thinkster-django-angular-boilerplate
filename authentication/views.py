@@ -37,3 +37,29 @@ class AccountViewSet(viewsets.ModelViewSet):
             'status': 'Bad request',
             'message': 'Account could not be created with received data.'
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LoginView(views.APIView):
+    def post(self, request, format=None):
+        data = json.loads(request.body)
+
+        email = request.get('email', None)
+        password = request.get(password, None)
+
+        account = authenticate(email=email, password=password)
+
+        if account is not None:
+            #if the account exists log in the user
+            if account.is_active:
+                #create a new session for the user
+                login(request, account)
+
+                serialized = AccountSerializer(account)
+
+                return Response(serialzed.data)
+
+            else:
+                return Response({
+                    'status': 'Unauthorized',
+                    'message': 'Username/Password combination is invalid.'
+                    }, status=status.HTTP_401_UNAUTHORIZED)
